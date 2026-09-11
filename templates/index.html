@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolvedor de Sudoku by Diego</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --error: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin: 0;
+            font-weight: 600;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            margin-top: 8px;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .upload-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            border: 2px dashed #e0e0e0;
+            border-radius: var(--border-radius);
+            transition: all 0.3s;
+            background-color: var(--light);
+        }
+        
+        .upload-section:hover {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-section.highlight {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        .file-label:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+        }
+        
+        .file-name {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        
+        .result-section {
+            margin-top: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .sudoku-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .sudoku-card {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .sudoku-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .sudoku-card h3 {
+            color: var(--primary);
+            text-align: center;
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .sudoku-board {
+            border: 3px solid var(--dark);
+            border-collapse: collapse;
+            margin: 0 auto;
+            background-color: white;
+        }
+        
+        .sudoku-board td {
+            width: 45px;
+            height: 45px;
+            border: 1px solid #d1d1d1;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            position: relative;
+            transition: background-color 0.2s;
+        }
+        
+        .sudoku-board td.original {
+            background-color: #f0f8ff;
+            color: var(--primary);
+        }
+        
+        .sudoku-board td.solved {
+            color: var(--secondary);
+            animation: popIn 0.3s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .sudoku-board tr:nth-child(3n) td {
+            border-bottom: 3px solid var(--dark);
+        }
+        
+        .sudoku-board td:nth-child(3n) {
+            border-right: 3px solid var(--dark);
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .error {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--error);
+            border-left: 4px solid var(--error);
+        }
+        
+        .success {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 15px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+            }
+            
+            .sudoku-container {
+                flex-direction: column;
+            }
+            
+            .sudoku-card {
+                margin-bottom: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Resolvedor de Sudoku</h1>
+            <div class="subtitle">Sube una imagen de tu sudoku y lo resolveré al instante</div>
+        </header>
+        
+        <div class="content">
+            <div class="upload-section" id="uploadSection">
+                <form method="POST" enctype="multipart/form-data" id="sudokuForm">
+                    <input type="file" name="image" accept="image/*" id="fileInput" class="file-input" required>
+                    <label for="fileInput" class="file-label">
+                        <i class="fas fa-cloud-upload-alt"></i> Seleccionar imagen
+                    </label>
+                    <div class="file-name" id="fileName">No se ha seleccionado ningún archivo</div>
+                    <button type="submit" class="btn" id="solveBtn" disabled>Resolver Sudoku</button>
+                </form>
+            </div>
+            
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <div class="loading-text">Procesando tu sudoku...</div>
+            </div>
+
+            {% if error %}
+                <div class="message error">
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+            {% endif %}
+
+            {% if prediction %}
+                <div class="message success">
+                    <i class="fas fa-check-circle"></i> ¡Sudoku resuelto con éxito!
+                </div>
+                
+                <div class="result-section">
+                    <div class="sudoku-container">
+                        <div class="sudoku-card">
+                            <h3>Tu Sudoku</h3>
+                            <img src="{{ url_for('static', filename='uploads/' + request.files['image'].filename) }}" class="preview-image" alt="Sudoku subido">
+                        </div>
+                        
+                        <div class="sudoku-card">
+                            <h3>Solución</h3>
+                            <table class="sudoku-board">
+                                {% for row in range(9) %}
+                                    <tr>
+                                        {% for col in range(9) %}
+                                            <td class="{{ 'original' if original_board[row][col] != 0 else 'solved' }}">
+                                                {{ prediction[row][col] if prediction[row][col] != 0 else '' }}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <footer>
+        Resolvedor de Sudoku by Diego &copy; {{ current_year }}
+    </footer>
+
+    <script>
+        // Mejorar la interacción del usuario
+        const fileInput = document.getElementById('fileInput');
+        const fileName = document.getElementById('fileName');
+        const solveBtn = document.getElementById('solveBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const sudokuForm = document.getElementById('sudokuForm');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        
+        // Mostrar nombre del archivo seleccionado
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileName.textContent = this.files[0].name;
+                solveBtn.disabled = false;
+                uploadSection.classList.add('highlight');
+            } else {
+                fileName.textContent = 'No se ha seleccionado ningún archivo';
+                solveBtn.disabled = true;
+                uploadSection.classList.remove('highlight');
+            }
+        });
+        
+        // Efecto de arrastrar y soltar
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('highlight');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('highlight');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('highlight');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+        
+        // Mostrar indicador de carga al enviar el formulario
+        sudokuForm.addEventListener('submit', function() {
+            loadingIndicator.style.display = 'block';
+            solveBtn.disabled = true;
+            solveBtn.textContent = 'Procesando...';
+        });
+    </script>
+</body>
+</html>
