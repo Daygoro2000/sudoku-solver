@@ -30,7 +30,7 @@ Solución integral orientada a la digitalización, extracción óptica y resoluc
 * **Capa Backend:** Servidor HTTP montado sobre Flask que expone rutas para el procesamiento asíncrono y renderizado dinámico mediante Jinja2.
 * **Gestión de Rutas:** Configuración de rutas canónicas absolutas para aislar la carga de plantillas (`templates/`), archivos estáticos (`static/`) y artefactos de modelos (`models/`).
 
-##Demostración y Validación
+## Demostración y Validación
 
 El funcionamiento del pipeline completo (ingesta de imagen, procesamiento morfológico, inferencia mediante la red neuronal y resolución algorítmica) se encuentra documentado en la siguiente prueba en vídeo:
 https://drive.google.com/drive/folders/1qX0469hp3R6IVZ6obqvA74aKHGZwPkxn?usp=sharing
